@@ -1,9 +1,9 @@
-defmodule Firebase.MixProject do
+defmodule ExFirebase.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :firebase,
+      app: :ex_firebase,
       version: "0.1.0",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
@@ -13,7 +13,7 @@ defmodule Firebase.MixProject do
 
   def application do
     [
-      mod: {Firebase.Application, []},
+      mod: {ExFirebase.Application, []},
       extra_applications: [:logger]
     ]
   end
@@ -22,7 +22,8 @@ defmodule Firebase.MixProject do
     [
       {:jose, "~> 1.8"},
       {:poison, "~> 3.1"},
-      {:httpoison, "~> 1.4"}
+      {:httpoison, "~> 1.4"},
+      {:mock, "~> 0.3.2", only: :test}
     ]
   end
 end

@@ -1,4 +1,4 @@
-defmodule Firebase.KeyManager do
+defmodule ExFirebase.KeyManager do
   @moduledoc """
   GenServer process for retrieving and storing Firebase public keys.
   The process fetches keys upon startup and reloads them when cache expires.
@@ -24,7 +24,7 @@ defmodule Firebase.KeyManager do
 
   ## Examples
 
-    iex> Firebase.KeyManager.get_key("7a1eb516ae416857b3f074ed41892e643c00f2e5")
+    iex> ExFirebase.KeyManager.get_key("7a1eb516ae416857b3f074ed41892e643c00f2e5")
     {:ok,
      "-----BEGIN CERTIFICATE-----\nM3ZOdlMa...8s=\n-----END CERTIFICATE-----\n"}
   """
@@ -76,7 +76,7 @@ defmodule Firebase.KeyManager do
     {:noreply, state}
   end
 
-  defp fetch_keys do
+  def fetch_keys do
     case HTTPoison.get(@key_url) do
       {:ok, %HTTPoison.Response{body: body, headers: headers, status_code: 200}} ->
         # Reload the keys after the cache-control header has expired
