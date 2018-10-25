@@ -1,0 +1,2 @@
+defmodule Firebase do
+end
