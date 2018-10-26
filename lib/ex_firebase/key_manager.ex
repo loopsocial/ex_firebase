@@ -24,9 +24,9 @@ defmodule ExFirebase.KeyManager do
 
   ## Examples
 
-    iex> ExFirebase.KeyManager.get_key("7a1eb516ae416857b3f074ed41892e643c00f2e5")
-    {:ok,
-     "-----BEGIN CERTIFICATE-----\nM3ZOdlMa...8s=\n-----END CERTIFICATE-----\n"}
+      iex> ExFirebase.KeyManager.get_key("7a1eb516ae416857b3f074ed41892e643c00f2e5")
+      {:ok,
+       "-----BEGIN CERTIFICATE-----M3ZOdlMa...8s=-----END CERTIFICATE-----"}
   """
   def get_key(key_id) do
     case GenServer.call(__MODULE__, {:get_key, key_id}) do

@@ -7,7 +7,11 @@ defmodule ExFirebase.MixProject do
       version: "0.1.0",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      docs: docs(),
+      package: package(),
+      name: "ExFirebase",
+      source_url: "https://github.com/loopsocial/ex_firebase"
     ]
   end
 
@@ -23,7 +27,24 @@ defmodule ExFirebase.MixProject do
       {:jose, "~> 1.8"},
       {:poison, "~> 3.1"},
       {:httpoison, "~> 1.4"},
-      {:mock, "~> 0.3.2", only: :test}
+      {:mock, "~> 0.3.2", only: :test},
+      {:ex_doc, "~> 0.19", only: :dev, runtime: false}
+    ]
+  end
+
+  defp docs do
+    [
+      main: "ExFirebase",
+      extras: ["README.md"]
+    ]
+  end
+
+  defp package do
+    [
+      name: :ex_firebase,
+      maintainers: ["Ben Hansen"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/loopsocial/ex_firebase"}
     ]
   end
 end
