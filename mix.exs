@@ -11,6 +11,7 @@ defmodule ExFirebase.MixProject do
       docs: docs(),
       package: package(),
       name: "ExFirebase",
+      description: "Lightweight Firebase Admin SDK",
       source_url: "https://github.com/loopsocial/ex_firebase"
     ]
   end
