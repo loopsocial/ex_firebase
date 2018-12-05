@@ -1,15 +1,11 @@
-defmodule ExFirebase.KeyManager do
+defmodule ExFirebase.Auth.KeyManager do
   @moduledoc """
   GenServer process for retrieving and storing Firebase public keys.
   The process fetches keys upon startup and reloads them when cache expires.
   """
   use GenServer
 
-  require Logger
-
-  @key_url "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
-
-  # Client
+  @auth_http_client Application.get_env(:ex_firebase, :auth_http_client)
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
@@ -24,7 +20,7 @@ defmodule ExFirebase.KeyManager do
 
   ## Examples
 
-      iex> ExFirebase.KeyManager.get_key("7a1eb516ae416857b3f074ed41892e643c00f2e5")
+      iex> ExFirebase.Auth.KeyManager.get_key("7a1eb516ae416857b3f074ed41892e643c00f2e5")
       {:ok,
        "-----BEGIN CERTIFICATE-----M3ZOdlMa...8s=-----END CERTIFICATE-----"}
   """
@@ -41,8 +37,6 @@ defmodule ExFirebase.KeyManager do
   def update_keys do
     GenServer.cast(__MODULE__, :update_keys)
   end
-
-  # Server
 
   @impl GenServer
   def init(_) do
@@ -77,21 +71,20 @@ defmodule ExFirebase.KeyManager do
   end
 
   def fetch_keys do
-    case HTTPoison.get(@key_url) do
-      {:ok, %HTTPoison.Response{body: body, headers: headers, status_code: 200}} ->
+    case @auth_http_client.fetch_keys() do
+      {:ok, %{body: body, headers: headers}} ->
         # Reload the keys after the cache-control header has expired
-        set_reload_from_headers(headers)
-        {:ok, Poison.decode!(body)}
+        set_reload_from_cache_control(headers)
+        {:ok, body}
 
       {:error, error} ->
-        Logger.warn("Error getting Firebase keys #{inspect(error)}")
-        # Retry in 10 seconds if we could not fetch the keys
+        # Retry in 10 seconds if request failed
         set_reload(10)
         {:error, error}
     end
   end
 
-  defp set_reload_from_headers(headers) do
+  defp set_reload_from_cache_control(headers) do
     headers
     |> Enum.find(fn {k, _v} -> String.downcase(k) == "cache-control" end)
     |> elem(1)

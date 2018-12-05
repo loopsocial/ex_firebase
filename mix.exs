@@ -7,6 +7,7 @@ defmodule ExFirebase.MixProject do
       version: "0.2.0",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       docs: docs(),
       package: package(),
@@ -28,7 +29,6 @@ defmodule ExFirebase.MixProject do
       {:jose, "~> 1.8"},
       {:poison, "~> 3.1"},
       {:httpoison, "~> 1.4"},
-      {:mock, "~> 0.3.2", only: :test},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false}
     ]
   end
@@ -48,4 +48,7 @@ defmodule ExFirebase.MixProject do
       links: %{"GitHub" => "https://github.com/loopsocial/ex_firebase"}
     ]
   end
+
+  defp elixirc_paths(:test), do: ["test/support", "lib"]
+  defp elixirc_paths(_), do: ["lib"]
 end
