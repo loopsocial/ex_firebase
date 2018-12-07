@@ -1,6 +1,7 @@
 defmodule ExFirebase.Auth.Certificate do
   alias ExFirebase.Error
 
+  @enforce_keys [:project_id, :private_key, :client_email]
   defstruct [:project_id, :private_key, :client_email]
 
   @type t :: %__MODULE__{
@@ -10,43 +11,59 @@ defmodule ExFirebase.Auth.Certificate do
         }
 
   @doc """
-  Reads a service account key file and returns an `%ExFirebase.Auth.Certificate{}`
+  Creates a new `ExFirebase.Auth.Certificate` from attrs
   """
-  @spec get_certificate :: {:ok, __MODULE__.t()} | {:error, Error.t()}
-  def get_certificate, do: get_service_account_key(service_account_key_path())
+  @spec new(binary() | map()) :: __MODULE__.t() | {:error, Error.t()}
+  def new(attrs) when is_binary(attrs), do: from_binary(attrs)
+  def new(attrs) when is_map(attrs), do: from_map(attrs)
 
-  defp get_service_account_key(nil), do: {:error, %Error{reason: :enoent}}
+  @doc """
+  Creates a new `ExFirebase.Auth.Certificate` from local file in configuration
+  """
+  @spec new :: __MODULE__.t() | {:error, Error.t()}
+  def new, do: from_file(file_path())
 
-  defp get_service_account_key(path) when is_binary(path) do
+  defp from_file(nil), do: {:error, %Error{reason: :enoent}}
+
+  defp from_file(path) when is_binary(path) do
     case File.read(path) do
       {:error, reason} -> {:error, %Error{reason: reason}}
-      {:ok, binary} -> decode_key(binary)
+      {:ok, binary} -> from_binary(binary)
     end
   end
 
-  defp decode_key(binary) do
+  defp from_binary(binary) do
     case Poison.decode(binary) do
-      {:ok, key} -> parse_key(key)
-      {:error, _, _} -> {:error, %Error{reason: :invalid_key}}
+      {:ok, map} -> from_map(map)
+      {:error, _, _} -> {:error, %Error{reason: :invalid_certificate}}
     end
   end
 
-  defp parse_key(%{
+  defp from_map(
+         %{
+           project_id: _project_id,
+           private_key: _private_key,
+           client_email: _client_email
+         } = attrs
+       ) do
+    from_map(Poison.encode!(attrs))
+  end
+
+  defp from_map(%{
          "project_id" => project_id,
          "private_key" => private_key,
          "client_email" => client_email
        }) do
-    {:ok,
-     %__MODULE__{
-       project_id: project_id,
-       private_key: private_key,
-       client_email: client_email
-     }}
+    %__MODULE__{
+      project_id: project_id,
+      private_key: private_key,
+      client_email: client_email
+    }
   end
 
-  defp parse_key(_), do: {:error, %Error{reason: :invalid_key}}
+  defp from_map(_), do: {:error, %Error{reason: :invalid_certificate}}
 
-  defp service_account_key_path do
+  defp file_path do
     Application.get_env(:ex_firebase, :service_account_key_path)
   end
 end

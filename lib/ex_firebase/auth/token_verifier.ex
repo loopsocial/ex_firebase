@@ -9,6 +9,7 @@ defmodule ExFirebase.Auth.TokenVerifier do
 
   @allowed_algos ["RS256"]
 
+  @spec verify(binary()) :: {:ok, JOSE.JWT.t()} | {:error, Error.t()}
   def verify(token) do
     with %JOSE.JWT{
            fields: %{

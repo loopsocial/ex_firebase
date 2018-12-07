@@ -5,8 +5,7 @@ defmodule ExFirebase.Auth.PublicKeyManager do
   """
   use GenServer
 
-  alias ExFirebase.Auth
-  alias ExFirebase.{Error, HTTPError, HTTPResponse}
+  alias ExFirebase.{Auth, Error}
 
   require Logger
 
@@ -17,7 +16,7 @@ defmodule ExFirebase.Auth.PublicKeyManager do
   @doc """
   Retrieves a key stored in state by id
   """
-  @spec get_key(key_id :: binary()) :: {:ok, binary()} | {:error, Error.t()}
+  @spec get_key(binary()) :: {:ok, binary()} | {:error, Error.t()}
   def get_key(key_id) do
     case GenServer.call(__MODULE__, {:get_key, key_id}) do
       nil -> {:error, %Error{reason: :not_found}}
@@ -64,25 +63,32 @@ defmodule ExFirebase.Auth.PublicKeyManager do
   @impl GenServer
   def handle_cast(:update_keys, state) do
     case Auth.get_public_keys() do
-      {:ok, %HTTPResponse{body: keys, headers: headers}} ->
+      {:ok, %{body: keys, headers: headers, status_code: 200}} ->
         reload_after_cache_expiration(headers)
         {:noreply, keys}
 
-      {:error, error} ->
-        if retry_for_error?(error) do
-          Logger.debug("[#{__MODULE__}] error fetching keys #{inspect(error)}, retrying...")
-          set_reload_timer(10)
-        else
-          Logger.debug("[#{__MODULE__}] error fetching keys #{inspect(error)}, aborting.")
-        end
-
+      error ->
+        handle_request_error(error)
         {:noreply, state}
     end
   end
 
-  defp retry_for_error?(%HTTPError{}), do: true
-  defp retry_for_error?(%HTTPResponse{}), do: true
-  defp retry_for_error?(_), do: false
+  defp handle_request_error({:ok, %HTTPoison.Response{} = error}) do
+    retry_request_for_error(error)
+  end
+
+  defp handle_request_error({:error, %HTTPoison.Error{} = error}) do
+    retry_request_for_error(error)
+  end
+
+  defp handle_request_error(error) do
+    Logger.debug("[#{__MODULE__}] #{inspect(error)}, aborting.")
+  end
+
+  defp retry_request_for_error(error) do
+    Logger.debug("[#{__MODULE__}] #{inspect(error)}, retrying...")
+    set_reload_timer(10)
+  end
 
   @impl GenServer
   def handle_info(:reload_keys, state) do
