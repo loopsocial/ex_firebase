@@ -1,9 +1,8 @@
-defmodule ExFirebase.Auth.Credential do
-  alias ExFirebase.Auth
-  alias ExFirebase.Error
+defmodule ExFirebase.Auth.JWT do
+  alias ExFirebase.{Auth, Error}
   alias ExFirebase.Auth.Certificate
 
-  @jwt_algorithm "RS256"
+  @algorithm "RS256"
   @one_hour_in_seconds 60 * 60
   @scopes [
     "https://www.googleapis.com/auth/cloud-platform",
@@ -13,9 +12,8 @@ defmodule ExFirebase.Auth.Credential do
     "https://www.googleapis.com/auth/userinfo.email"
   ]
 
-  @spec create_jwt_from_certificate(certificate :: Certificate.t()) ::
-          {:ok, binary()} | {:error, Error.t()}
-  def create_jwt_from_certificate(%Certificate{
+  @spec from_certificate(Certificate.t()) :: {:ok, binary()} | {:error, Error.t()}
+  def from_certificate(%Certificate{
         private_key: private_key,
         client_email: client_email
       })
@@ -23,7 +21,7 @@ defmodule ExFirebase.Auth.Credential do
     with %JOSE.JWK{} = jwk <- JOSE.JWK.from_pem(private_key) do
       {:ok,
        jwk
-       |> JOSE.JWT.sign(%{"alg" => @jwt_algorithm, "typ" => "JWT"}, %{
+       |> JOSE.JWT.sign(%{"alg" => @algorithm, "typ" => "JWT"}, %{
          "iat" => System.system_time(:seconds),
          "exp" => System.system_time(:seconds) + @one_hour_in_seconds,
          "aud" => Auth.oauth_token_url(),
@@ -33,7 +31,7 @@ defmodule ExFirebase.Auth.Credential do
        |> JOSE.JWS.compact()
        |> elem(1)}
     else
-      _ -> {:error, %Error{reason: :invalid_private_key}}
+      _ -> {:error, %Error{reason: :invalid_jwt}}
     end
   end
 end
