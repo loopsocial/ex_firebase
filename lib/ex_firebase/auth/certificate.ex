@@ -11,7 +11,7 @@ defmodule ExFirebase.Auth.Certificate do
         }
 
   @doc """
-  Creates a new `ExFirebase.Auth.Certificate` from attrs
+  Creates a new `ExFirebase.Auth.Certificate` from file binary or map
   """
   @spec new(binary() | map()) :: __MODULE__.t() | {:error, Error.t()}
   def new(attrs) when is_binary(attrs), do: from_binary(attrs)
@@ -37,16 +37,6 @@ defmodule ExFirebase.Auth.Certificate do
       {:ok, map} -> from_map(map)
       {:error, _, _} -> {:error, %Error{reason: :invalid_certificate}}
     end
-  end
-
-  defp from_map(
-         %{
-           project_id: _project_id,
-           private_key: _private_key,
-           client_email: _client_email
-         } = attrs
-       ) do
-    from_map(Poison.encode!(attrs))
   end
 
   defp from_map(%{

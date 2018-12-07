@@ -1,12 +1,14 @@
 defmodule ExFirebase.Messaging.HTTPMock do
   @behaviour ExFirebase.Messaging.HTTP
 
-  def send_message(_body, _access_token) do
+  def send(_body, _access_token) do
     {:ok,
      %HTTPoison.Response{
-       body: %{},
+       body: %{
+         "name" => "projects/myproject-id/messages/0:1544204830625699%2575e27c2575e27c"
+       },
        headers: [],
-       status_code: 201
+       status_code: 200
      }}
   end
 end

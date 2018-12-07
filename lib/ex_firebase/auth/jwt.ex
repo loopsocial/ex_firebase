@@ -31,7 +31,7 @@ defmodule ExFirebase.Auth.JWT do
        |> JOSE.JWS.compact()
        |> elem(1)}
     else
-      _ -> {:error, %Error{reason: :invalid_jwt}}
+      _ -> {:error, %Error{reason: :invalid_certificate}}
     end
   end
 end

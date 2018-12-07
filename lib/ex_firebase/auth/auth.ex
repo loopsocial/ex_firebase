@@ -64,7 +64,7 @@ defmodule ExFirebase.Auth do
       {:ok,
        %JOSE.JWT{
          fields: %{
-           "aud" => "myproject-id",
+           "aud" => "project-id",
            "auth_time" => 1540314428,
            "exp" => 1540318028,
            "firebase" => %{
@@ -72,7 +72,7 @@ defmodule ExFirebase.Auth do
              "sign_in_provider" => "phone"
            },
            "iat" => 1540314428,
-           "iss" => "https://securetoken.google.com/myproject-id",
+           "iss" => "https://securetoken.google.com/project-id",
            "phone_number" => "+16505553434",
            "sub" => "O5dHhHaWzsgUdNo6jIeTrWykPVd2",
            "user_id" => "O5dHhHaWzsgUdNo6jIeTrWykPVd2"

@@ -4,15 +4,14 @@ defmodule ExFirebase.Messaging.HTTP do
   """
   alias ExFirebase.HTTPClient
 
-  @callback send_message(body :: map(), access_token :: binary()) ::
+  @callback send(body :: map(), access_token :: binary()) ::
               {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
 
   @fcm_path "https://fcm.googleapis.com/v1/projects/"
   @messaging_path "/messages:send"
 
-  @spec send_message(map(), binary()) ::
-          {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
-  def send_message(body, access_token) when is_map(body) and is_binary(access_token) do
+  @spec send(map(), binary()) :: {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
+  def send(body, access_token) when is_map(body) and is_binary(access_token) do
     HTTPClient.post(fcm_url(), body, [
       {"Authorization", "Bearer #{access_token}"}
     ])

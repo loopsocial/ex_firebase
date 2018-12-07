@@ -39,10 +39,10 @@ config :ex_firebase,
 ## Supported Features
 
 - [Authentication](https://hexdocs.pm/ex_firebase/ExFirebase.Auth.html)
-    - [Get OAuth2 Access Token](https://hexdocs.pm/ex_firebase/ExFirebase.Auth.html#get_access_token/0)
-    - [Verify Firebase Auth ID token](https://hexdocs.pm/ex_firebase/ExFirebase.Auth.html#verify_token/1)
+    - [OAuth2 Access Token](https://hexdocs.pm/ex_firebase/ExFirebase.Auth.html#get_access_token/0) - [more](https://developers.google.com/identity/protocols/OAuth2ServiceAccount)
+    - [Verify ID token](https://hexdocs.pm/ex_firebase/ExFirebase.Auth.html#verify_token/1) - [more](https://firebase.google.com/docs/auth/admin/verify-id-tokens)
 - [Messaging](https://hexdocs.pm/ex_firebase/ExFirebase.Messaging.html)
-    - [Send FCM message](https://hexdocs.pm/ex_firebase/ExFirebase.Messaging.html#send_message/1)
+    - [FCM push notifications](https://hexdocs.pm/ex_firebase/ExFirebase.Messaging.html#send_message/1) - [more](https://firebase.google.com/docs/cloud-messaging/concept-options)
 
 ## License
 
