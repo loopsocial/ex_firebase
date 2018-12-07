@@ -64,6 +64,6 @@ defmodule ExFirebase.Auth.Certificate do
   defp from_map(_), do: {:error, %Error{reason: :invalid_certificate}}
 
   defp file_path do
-    Application.get_env(:ex_firebase, :service_account_key_path)
+    Application.get_env(:ex_firebase, :service_account_path)
   end
 end

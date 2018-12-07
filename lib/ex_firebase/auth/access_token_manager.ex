@@ -9,6 +9,8 @@ defmodule ExFirebase.Auth.AccessTokenManager do
 
   require Logger
 
+  @one_minute_in_seconds 60
+
   def start_link(_) do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
@@ -45,7 +47,7 @@ defmodule ExFirebase.Auth.AccessTokenManager do
   def handle_cast(:update_token, state) do
     case Auth.get_new_access_token() do
       {:ok, %{body: %{"access_token" => access_token, "expires_in" => expires_in}}} ->
-        set_reload_timer(expires_in)
+        set_reload_timer(expires_in - @one_minute_in_seconds)
         {:noreply, %{access_token: access_token}}
 
       error ->
@@ -63,11 +65,11 @@ defmodule ExFirebase.Auth.AccessTokenManager do
   end
 
   defp handle_request_error(error) do
-    Logger.debug("[#{__MODULE__}] #{inspect(error)}, aborting.")
+    Logger.debug("#{__MODULE__} #{inspect(error)}, aborting.")
   end
 
   defp retry_request_for_error(error) do
-    Logger.debug("[#{__MODULE__}] #{inspect(error)}, retrying...")
+    Logger.debug("#{__MODULE__} #{inspect(error)}, retrying...")
     set_reload_timer(10)
   end
 

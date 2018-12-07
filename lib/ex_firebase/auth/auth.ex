@@ -11,7 +11,7 @@ defmodule ExFirebase.Auth do
     TokenVerifier
   }
 
-  @http_module Application.get_env(:ex_firebase, :auth_http_module)
+  @http_module Application.get_env(:ex_firebase, :auth_http_module) || ExFirebase.Auth.HTTP
 
   @oauth_token_url "https://www.googleapis.com/oauth2/v4/token"
   def oauth_token_url, do: @oauth_token_url

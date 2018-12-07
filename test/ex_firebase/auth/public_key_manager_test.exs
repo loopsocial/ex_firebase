@@ -5,7 +5,7 @@ defmodule ExFirebase.Auth.PublicKeyManagerTest do
   alias ExFirebase.Error
 
   @keys File.cwd!()
-        |> Path.join("/test/fixtures/public_keys.json")
+        |> Path.join("/test/fixtures/public-keys.json")
         |> File.read!()
         |> Poison.decode!()
 

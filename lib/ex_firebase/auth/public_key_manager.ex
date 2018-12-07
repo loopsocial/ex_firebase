@@ -82,11 +82,11 @@ defmodule ExFirebase.Auth.PublicKeyManager do
   end
 
   defp handle_request_error(error) do
-    Logger.debug("[#{__MODULE__}] #{inspect(error)}, aborting.")
+    Logger.debug("#{__MODULE__} #{inspect(error)}, aborting.")
   end
 
   defp retry_request_for_error(error) do
-    Logger.debug("[#{__MODULE__}] #{inspect(error)}, retrying...")
+    Logger.debug("#{__MODULE__} #{inspect(error)}, retrying...")
     set_reload_timer(10)
   end
 

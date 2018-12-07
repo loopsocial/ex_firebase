@@ -1,7 +1,8 @@
 defmodule ExFirebase.Messaging do
   alias ExFirebase.{Auth, Error}
 
-  @http_module Application.get_env(:ex_firebase, :messaging_http_module)
+  @http_module Application.get_env(:ex_firebase, :messaging_http_module) ||
+                 ExFirebase.Messaging.HTTP
 
   @doc """
   Sends a message with Firebase Cloud Messaging v1 API

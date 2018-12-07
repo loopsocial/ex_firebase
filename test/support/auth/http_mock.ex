@@ -2,7 +2,7 @@ defmodule ExFirebase.Auth.HTTPMock do
   @behaviour ExFirebase.Auth.HTTP
 
   @public_keys File.cwd!()
-               |> Path.join("/test/fixtures/public_keys.json")
+               |> Path.join("/test/fixtures/public-keys.json")
                |> File.read!()
                |> Poison.decode!()
 
