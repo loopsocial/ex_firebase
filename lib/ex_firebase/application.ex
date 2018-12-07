@@ -3,7 +3,8 @@ defmodule ExFirebase.Application do
 
   def start(_type, _args) do
     children = [
-      ExFirebase.Auth.KeyManager
+      ExFirebase.Auth.AccessTokenManager,
+      ExFirebase.Auth.PublicKeyManager
     ]
 
     opts = [strategy: :one_for_one, name: ExFirebase.Supervisor]

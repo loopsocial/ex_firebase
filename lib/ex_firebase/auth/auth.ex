@@ -2,35 +2,59 @@ defmodule ExFirebase.Auth do
   @moduledoc """
   Firebase authentication interface
   """
-  alias ExFirebase.Auth.TokenVerifier
+  alias ExFirebase.{
+    Error,
+    HTTPError,
+    HTTPResponse
+  }
+
+  alias ExFirebase.Auth.{
+    AccessTokenManager,
+    Certificate,
+    Credential,
+    TokenVerifier
+  }
+
+  @auth_http_client Application.get_env(:ex_firebase, :auth_http_client)
+
+  @oauth_token_url "https://www.googleapis.com/oauth2/v4/token"
+  def oauth_token_url, do: @oauth_token_url
 
   @doc """
-  Verifies token claims and signature, and converts binary token into a `%JOSE.JWT{}`
-
-  ## Parameters
-
-    token - Signed JSON Web Token
-
-  ## Examples
-
-      iex> ExFirebase.Auth.verify_token("eyJhbGciOiJS...")
-      {:ok,
-       %JOSE.JWT{
-         fields: %{
-           "aud" => "example-project-id",
-           "auth_time" => 1540314428,
-           "exp" => 1540318028,
-           "firebase" => %{
-             "identities" => %{"phone" => ["+10000000001"]},
-             "sign_in_provider" => "phone"
-           },
-           "iat" => 1540314428,
-           "iss" => "https://securetoken.google.com/example-project-id",
-           "phone_number" => "+10000000001",
-           "sub" => "O5dHhHaWzsgUdNo6jIeTrWykPVd2",
-           "user_id" => "O5dHhHaWzsgUdNo6jIeTrWykPVd2"
-         }
-       }}
+  Returns a cached access token
   """
-  defdelegate verify_token(token), to: TokenVerifier, as: :verify_token
+  @spec get_access_token :: {:ok, binary()} | {:error, Error.t()}
+  defdelegate get_access_token, to: AccessTokenManager, as: :get_token
+
+  @doc """
+  Makes an HTTP request for an OAuth2 access token using a service account's credentials
+  """
+  @spec get_new_access_token ::
+          {:ok, HTTPResponse.t()}
+          | {:error, HTTPResponse.t()}
+          | {:error, HTTPError.t()}
+          | {:error, Error.t()}
+  def get_new_access_token do
+    with {:ok, %Certificate{} = certificate} <- Certificate.get_certificate(),
+         {:ok, jwt} <- Credential.create_jwt_from_certificate(certificate) do
+      @auth_http_client.get_access_token(jwt)
+    end
+  end
+
+  @doc """
+  Verifies the claims and signature of a Firebase Auth ID token,
+  and converts binary token into a `JOSE.JWT`
+  """
+  @spec verify_token(token :: binary()) :: {:ok, JOSE.JWT.t()} | {:error, Error.t()}
+  defdelegate verify_token(token), to: TokenVerifier, as: :verify
+
+  @doc """
+  Makes an HTTP request to get Google's public keys, whose private keys
+  are used to sign Firebase Auth ID tokens
+  """
+  @spec get_public_keys ::
+          {:ok, HTTPResponse.t()}
+          | {:error, HTTPResponse.t()}
+          | {:error, HTTPError.t()}
+  defdelegate get_public_keys, to: @auth_http_client, as: :get_public_keys
 end
