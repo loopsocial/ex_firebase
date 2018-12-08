@@ -19,7 +19,7 @@ defmodule ExFirebase.MixProject do
 
   def application do
     [
-      mod: {ExFirebase.Application, []},
+      mod: {ExFirebase, []},
       extra_applications: [:logger]
     ]
   end

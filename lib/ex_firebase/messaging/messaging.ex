@@ -18,6 +18,21 @@ defmodule ExFirebase.Messaging do
          ...
          status_code: 200
        }}
+
+      iex> ExFirebase.Messaging.send(%{message: %{token: ""}})
+      {:ok,
+       %HTTPoison.Response{
+         body: %{
+           "error" => %{
+             "code" => 400,
+             "details" => [...],
+             "message" => "The registration token is not a valid FCM registration token",
+             "status" => "INVALID_ARGUMENT"
+           }
+         },
+         ...
+         status_code: 400
+       }}
   """
   @spec send(map()) ::
           {:ok, HTTPResponse.t()}
