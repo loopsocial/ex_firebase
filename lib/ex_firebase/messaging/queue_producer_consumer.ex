@@ -4,9 +4,9 @@ defmodule ExFirebase.Messaging.QueueProducerConsumer do
   alias ExFirebase.Messaging.QueueProducer
 
   # How often to ask the QueueProducer for messages
-  @ask_interval 1000
-  # How many messages to attempt sending per @ask_interval
-  @max_demand 2
+  @interval_ms Application.get_env(:ex_firebase, :queue_interval) || 1000
+  # How many messages to attempt sending per @interval_ms
+  @max_demand Application.get_env(:ex_firebase, :queue_batch_size) || 10
 
   def start_link(args) do
     GenStage.start_link(__MODULE__, args, name: __MODULE__)
@@ -17,20 +17,26 @@ defmodule ExFirebase.Messaging.QueueProducerConsumer do
   end
 
   def handle_subscribe(:producer, _opts, from, _state) do
-    Process.send_after(__MODULE__, :ask, @ask_interval)
+    # Schedule initial request for messages
+    Process.send_after(__MODULE__, :ask, @interval_ms)
+    # Make this process responsible for managing its state
     {:manual, %{producer: from}}
   end
 
   def handle_subscribe(:consumer, _opts, _from, state) do
+    # The consumer will be responsible for its state
     {:automatic, state}
   end
 
   def handle_info(:ask, %{producer: producer} = state) do
+    # Request up to our demand limit from QueueProducer
     GenStage.ask(producer, @max_demand)
-    Process.send_after(__MODULE__, :ask, @ask_interval)
+    # Schedule next ask request
+    Process.send_after(__MODULE__, :ask, @interval_ms)
     {:noreply, [], state}
   end
 
+  # Demand from QueueProducer is forwarded straight to our consumer
   def handle_events(events, _from, state) do
     {:noreply, events, state}
   end

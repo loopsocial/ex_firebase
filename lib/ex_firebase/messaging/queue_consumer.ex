@@ -3,7 +3,7 @@ defmodule ExFirebase.Messaging.QueueConsumer do
 
   require Logger
 
-  @retry_offset 60
+  @retry_offset_seconds 60
 
   def start_link(payload) do
     Task.start_link(fn ->
@@ -74,7 +74,7 @@ defmodule ExFirebase.Messaging.QueueConsumer do
   end
 
   defp handle_result({:retry, payload}) do
-    Messaging.send_scheduled(payload, @retry_offset)
+    Messaging.schedule(payload, @retry_offset_seconds)
   end
 
   defp handle_result({:error, response, payload}) do
