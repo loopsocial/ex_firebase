@@ -2,16 +2,18 @@ defmodule ExFirebase.Auth do
   @moduledoc """
   Firebase authentication interface
   """
-  alias ExFirebase.{Error}
+
+  alias ExFirebase.Error
 
   alias ExFirebase.Auth.{
     AccessTokenManager,
     Certificate,
+    HTTP,
     JWT,
     TokenVerifier
   }
 
-  @http_module Application.get_env(:ex_firebase, :auth_http_module) || ExFirebase.Auth.HTTP
+  @http_module Application.get_env(:ex_firebase, :auth_http_module) || HTTP
 
   @oauth_token_url "https://www.googleapis.com/oauth2/v4/token"
   def oauth_token_url, do: @oauth_token_url
@@ -24,7 +26,7 @@ defmodule ExFirebase.Auth do
       iex> ExFirebase.Auth.get_access_token()
       {:ok, "1/8xbJqaOZXSUZbHLl5EOtu1pxz3fmmetKx9W8CV4t79M"}
   """
-  @spec get_access_token :: {:ok, binary()} | {:error, Error.t()}
+  @spec get_access_token :: {:ok, String.t()} | {:error, Error.t()}
   defdelegate get_access_token, to: AccessTokenManager, as: :get_token
 
   @doc """
@@ -79,7 +81,7 @@ defmodule ExFirebase.Auth do
          }
        }}
   """
-  @spec verify_token(binary()) :: {:ok, JOSE.JWT.t()} | {:error, Error.t()}
+  @spec verify_token(String.t()) :: {:ok, JOSE.JWT.t()} | {:error, Error.t()}
   defdelegate verify_token(token), to: TokenVerifier, as: :verify
 
   @doc """

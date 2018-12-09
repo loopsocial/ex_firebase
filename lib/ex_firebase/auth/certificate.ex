@@ -1,13 +1,16 @@
 defmodule ExFirebase.Auth.Certificate do
+  @moduledoc """
+  Converts Firebase service account credentials into an `ExFirebase.Auth.Certificate`
+  """
+
   alias ExFirebase.Error
 
-  @enforce_keys [:project_id, :private_key, :client_email]
   defstruct [:project_id, :private_key, :client_email]
 
   @type t :: %__MODULE__{
-          project_id: binary(),
-          private_key: binary(),
-          client_email: binary()
+          project_id: String.t(),
+          private_key: String.t(),
+          client_email: String.t()
         }
 
   @doc """

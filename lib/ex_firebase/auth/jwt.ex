@@ -1,4 +1,8 @@
 defmodule ExFirebase.Auth.JWT do
+  @moduledoc """
+  Converts an `ExFirebase.Auth.Certificate` into a signed JWT
+  """
+
   alias ExFirebase.{Auth, Error}
   alias ExFirebase.Auth.Certificate
 
@@ -12,7 +16,7 @@ defmodule ExFirebase.Auth.JWT do
     "https://www.googleapis.com/auth/userinfo.email"
   ]
 
-  @spec from_certificate(Certificate.t()) :: {:ok, binary()} | {:error, Error.t()}
+  @spec from_certificate(Certificate.t()) :: {:ok, String.t()} | {:error, Error.t()}
   def from_certificate(%Certificate{
         private_key: private_key,
         client_email: client_email

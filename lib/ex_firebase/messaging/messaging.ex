@@ -1,8 +1,12 @@
 defmodule ExFirebase.Messaging do
-  alias ExFirebase.{Auth, Error}
+  @moduledoc """
+  Firebase messaging interface
+  """
 
-  @http_module Application.get_env(:ex_firebase, :messaging_http_module) ||
-                 ExFirebase.Messaging.HTTP
+  alias ExFirebase.{Auth, Error}
+  alias ExFirebase.Messaging.{HTTP, QueueProducer}
+
+  @http_module Application.get_env(:ex_firebase, :messaging_http_module) || HTTP
 
   @doc """
   Sends a push notification with Firebase Cloud Messaging v1 API
@@ -35,16 +39,30 @@ defmodule ExFirebase.Messaging do
        }}
   """
   @spec send(map()) ::
-          {:ok, HTTPResponse.t()}
+          {:ok, HTTPoison.Response.t()}
           | {:error, HTTPoison.Error.t()}
           | {:error, Error.t()}
-  def send(body) when is_map(body) do
-    if ExFirebase.project_id() do
-      with {:ok, access_token} <- Auth.get_access_token() do
-        @http_module.send(body, access_token)
-      end
-    else
-      {:error, %Error{reason: :no_project_id}}
+  def send(payload) when is_map(payload) do
+    with {:ok, access_token} <- Auth.get_access_token() do
+      @http_module.send(payload, access_token)
     end
+  end
+
+  @spec send_queued(map() | list(map())) :: :ok
+  def send_queued(payload) when is_map(payload) or is_list(payload) do
+    QueueProducer.add(payload)
+  end
+
+  @spec send_queued(map(), list(String.t())) :: :ok
+  def send_queued(%{message: %{}} = payload, tokens) when is_list(tokens) do
+    tokens
+    |> Enum.map(&put_in(payload, [:message, :token], &1))
+    |> QueueProducer.add()
+  end
+
+  @spec send_scheduled(map(), integer()) :: :ok
+  def send_scheduled(payload, seconds) when is_map(payload) and seconds > 0 do
+    # TODO
+    :ok
   end
 end
