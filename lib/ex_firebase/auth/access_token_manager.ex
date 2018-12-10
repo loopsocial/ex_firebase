@@ -3,6 +3,7 @@ defmodule ExFirebase.Auth.AccessTokenManager do
   GenServer process for storing a Firebase OAuth2 access token.
   The process fetches a token upon startup and reloads it upon expiration.
   """
+
   use GenServer
 
   alias ExFirebase.{Auth, Error}
@@ -10,12 +11,13 @@ defmodule ExFirebase.Auth.AccessTokenManager do
   require Logger
 
   @one_minute_in_seconds 60
+  @retry_interval_in_seconds 10
 
-  def start_link(_) do
-    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
+  def start_link(args) do
+    GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
 
-  @spec get_token :: {:ok, binary()} | {:error, Error.t()}
+  @spec get_token :: {:ok, String.t()} | {:error, Error.t()}
   def get_token do
     case GenServer.call(__MODULE__, :get_token) do
       nil -> {:error, %Error{reason: :no_token}}
@@ -28,7 +30,7 @@ defmodule ExFirebase.Auth.AccessTokenManager do
   end
 
   @impl GenServer
-  def init(_) do
+  def init(_args) do
     {:ok, %{}, {:continue, :init}}
   end
 
@@ -69,8 +71,8 @@ defmodule ExFirebase.Auth.AccessTokenManager do
   end
 
   defp retry_request_for_error(error) do
-    Logger.info("#{__MODULE__} #{inspect(error)}, retrying...")
-    set_reload_timer(10)
+    Logger.info("#{__MODULE__} #{inspect(error)}, retrying in #{@retry_interval_in_seconds}.")
+    set_reload_timer(@retry_interval_in_seconds)
   end
 
   @impl GenServer

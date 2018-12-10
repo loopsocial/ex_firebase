@@ -3,20 +3,23 @@ defmodule ExFirebase.Auth.PublicKeyManager do
   GenServer process for storing Firebase public keys.
   The process fetches keys upon startup and reloads them when cache expires.
   """
+
   use GenServer
 
   alias ExFirebase.{Auth, Error}
 
   require Logger
 
-  def start_link(_) do
-    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
+  @retry_interval_in_seconds 10
+
+  def start_link(args) do
+    GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
 
   @doc """
   Retrieves a key stored in state by id
   """
-  @spec get_key(binary()) :: {:ok, binary()} | {:error, Error.t()}
+  @spec get_key(String.t()) :: {:ok, String.t()} | {:error, Error.t()}
   def get_key(key_id) do
     case GenServer.call(__MODULE__, {:get_key, key_id}) do
       nil -> {:error, %Error{reason: :not_found}}
@@ -27,7 +30,7 @@ defmodule ExFirebase.Auth.PublicKeyManager do
   @doc """
   Returns all keys stored in state
   """
-  @spec get_keys :: %{binary() => binary()} | %{}
+  @spec get_keys :: %{String.t() => String.t()} | %{}
   def get_keys do
     GenServer.call(__MODULE__, :get_keys)
   end
@@ -40,7 +43,7 @@ defmodule ExFirebase.Auth.PublicKeyManager do
   end
 
   @impl GenServer
-  def init(_) do
+  def init(_args) do
     {:ok, %{}, {:continue, :init}}
   end
 
@@ -86,8 +89,8 @@ defmodule ExFirebase.Auth.PublicKeyManager do
   end
 
   defp retry_request_for_error(error) do
-    Logger.info("#{__MODULE__} #{inspect(error)}, retrying...")
-    set_reload_timer(10)
+    Logger.info("#{__MODULE__} #{inspect(error)}, retrying in #{@retry_interval_in_seconds}.")
+    set_reload_timer(@retry_interval_in_seconds)
   end
 
   @impl GenServer
