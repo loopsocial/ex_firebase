@@ -29,8 +29,8 @@ defmodule ExFirebase.Messaging.QueueProducer do
     GenServer.call(__MODULE__, :get_queue)
   end
 
-  def get_queue_length do
-    GenServer.call(__MODULE__, :get_queue_length)
+  def get_length do
+    GenServer.call(__MODULE__, :get_length)
   end
 
   def init(_args) do
@@ -51,7 +51,7 @@ defmodule ExFirebase.Messaging.QueueProducer do
     {:reply, :queue.to_list(queue), [], queue}
   end
 
-  def handle_call(:get_queue_length, _from, queue) do
+  def handle_call(:get_length, _from, queue) do
     {:reply, :queue.len(queue), [], queue}
   end
 

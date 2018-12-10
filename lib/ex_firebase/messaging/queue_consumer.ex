@@ -1,11 +1,10 @@
 defmodule ExFirebase.Messaging.QueueConsumer do
   @moduledoc """
   The final consumer in the Queue GenStage pipeline.
-  It sends FCM requests and casts results to QueueMonitor.
+  Requests & responses are broadcast through the `:gproc` registered process `:fcm_queue_monitor`.
   """
 
   alias ExFirebase.Messaging
-  alias ExFirebase.Messaging.QueueMonitor
 
   def start_link(payload) do
     Task.start_link(fn ->
@@ -22,10 +21,8 @@ defmodule ExFirebase.Messaging.QueueConsumer do
   end
 
   defp send_message(payload) do
-    QueueMonitor.fcm_request(payload)
-
-    payload
-    |> Messaging.send()
-    |> QueueMonitor.fcm_response(payload)
+    :gproc.send({:p, :l, :fcm_queue_monitor}, {:request, payload})
+    response = Messaging.send(payload)
+    :gproc.send({:p, :l, :fcm_queue_monitor}, {:response, response, payload})
   end
 end

@@ -4,7 +4,7 @@ defmodule ExFirebase.Messaging do
   """
 
   alias ExFirebase.{Auth, Error}
-  alias ExFirebase.Messaging.{HTTP, QueueProducer, Scheduler}
+  alias ExFirebase.Messaging.{HTTP, QueueMonitor, QueueProducer, Scheduler}
 
   @http_module Application.get_env(:ex_firebase, :messaging_http_module) || HTTP
 
@@ -80,5 +80,8 @@ defmodule ExFirebase.Messaging do
   defdelegate get_queue, to: QueueProducer, as: :get_queue
 
   @spec get_queue_length :: integer()
-  defdelegate get_queue_length, to: QueueProducer, as: :get_queue_length
+  defdelegate get_queue_length, to: QueueProducer, as: :get_length
+
+  @spec get_queue_stats :: QueueMonitor.state()
+  defdelegate get_queue_stats, to: QueueMonitor, as: :get_stats
 end

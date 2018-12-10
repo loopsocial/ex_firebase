@@ -1,7 +1,6 @@
 defmodule ExFirebase.Messaging.QueueMonitor do
   @moduledoc """
-  GenServer process that listens to events from QueueConsumer to track metrics.
-  Events are simultaneously broadcast through the `:gproc` registered process `:fcm_queue_monitor`.
+  Listens to events from :fcm_queue_monitor process to track metrics.
   """
 
   use GenServer
@@ -18,45 +17,37 @@ defmodule ExFirebase.Messaging.QueueMonitor do
 
   @impl GenServer
   def init(_args) do
+    :gproc.reg({:p, :l, :fcm_queue_monitor})
     {:ok, %{attempts: 0, successes: 0, failures: 0}}
   end
 
-  @spec stats :: state()
-  def stats do
-    GenServer.call(__MODULE__, :stats)
-  end
-
-  @spec fcm_request(map()) :: :ok
-  def fcm_request(payload) do
-    msg = {:request, payload}
-    :gproc.send({:p, :l, :fcm_queue_monitor}, msg)
-    GenServer.cast(__MODULE__, msg)
-  end
-
-  @spec fcm_response({:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}, map()) :: :ok
-  def fcm_response(response, payload) do
-    msg = {:response, response, payload}
-    :gproc.send({:p, :l, :fcm_queue_monitor}, msg)
-    GenServer.cast(__MODULE__, msg)
+  @spec get_stats :: state()
+  def get_stats do
+    GenServer.call(__MODULE__, :get_stats)
   end
 
   @impl GenServer
-  def handle_call(:stats, _from, state) do
+  def handle_call(:get_stats, _from, state) do
     {:reply, state, state}
   end
 
   @impl GenServer
-  def handle_cast({:request, _payload}, state) do
+  def handle_info({:request, _payload}, state) do
     {:noreply, %{state | attempts: state[:attempts] + 1}}
   end
 
   @impl GenServer
-  def handle_cast({:response, {:ok, %HTTPoison.Response{status_code: 200}}, _payload}, state) do
+  def handle_info({:response, {:ok, %HTTPoison.Response{status_code: 200}}, _payload}, state) do
     {:noreply, %{state | successes: state[:successes] + 1}}
   end
 
   @impl GenServer
-  def handle_cast({:response, _, _}, state) do
+  def handle_info({:response, _, _}, state) do
     {:noreply, %{state | failures: state[:failures] + 1}}
+  end
+
+  @impl GenServer
+  def handle_info(_msg, state) do
+    {:noreply, state}
   end
 end
