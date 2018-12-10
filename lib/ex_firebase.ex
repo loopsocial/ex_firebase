@@ -12,7 +12,8 @@ defmodule ExFirebase do
       ExFirebase.Messaging.QueueProducer,
       ExFirebase.Messaging.QueueProducerConsumer,
       ExFirebase.Messaging.QueueConsumerSupervisor,
-      ExFirebase.Messaging.Scheduler
+      ExFirebase.Messaging.Scheduler,
+      ExFirebase.Messaging.QueueMonitor
     ]
 
     opts = [strategy: :one_for_one, name: ExFirebase.Supervisor]

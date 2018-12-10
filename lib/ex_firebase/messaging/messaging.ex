@@ -75,4 +75,10 @@ defmodule ExFirebase.Messaging do
   defp put_tokens(payload, tokens) do
     Enum.map(tokens, &put_in(payload, [:message, :token], &1))
   end
+
+  @spec get_queue :: list(map())
+  defdelegate get_queue, to: QueueProducer, as: :get_queue
+
+  @spec get_queue_length :: integer()
+  defdelegate get_queue_length, to: QueueProducer, as: :get_queue_length
 end

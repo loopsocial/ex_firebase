@@ -1,8 +1,13 @@
 defmodule ExFirebase.Messaging.QueueConsumer do
+  @moduledoc """
+  The final consumer in the Queue GenStage pipeline.
+  It sends FCM requests and casts results to :queue_monitor.
+  """
+
   alias ExFirebase.{Error, Messaging}
+  alias ExFirebase.Messaging.QueueMonitor
 
-  require Logger
-
+  @queue_monitor Application.get_env(:ex_firebase, :queue_monitor) || QueueMonitor
   @retry_offset_seconds 60
 
   def start_link(payload) do
@@ -20,15 +25,7 @@ defmodule ExFirebase.Messaging.QueueConsumer do
   end
 
   defp send_message(payload) do
-    IO.inspect("sent #{inspect(payload)}")
-    Process.sleep(1000)
-  end
-
-  defp send_message(payload) do
-    Logger.info("""
-    #{__MODULE__} Sending FCM Push Notification
-    #{inspect(payload)}
-    """)
+    @queue_monitor.fcm_request(payload)
 
     payload
     |> Messaging.send()
@@ -37,51 +34,49 @@ defmodule ExFirebase.Messaging.QueueConsumer do
   end
 
   defp parse_response(
-         {:ok, %HTTPoison.Response{body: %{"name" => name}, status_code: 200}},
-         _payload
+         {:ok, %HTTPoison.Response{body: body, status_code: 200}},
+         payload
        ) do
-    {:ok, name}
+    {:ok, body, payload}
   end
 
   defp parse_response(
          {:ok,
           %HTTPoison.Response{
-            body: %{
-              "error" => %{
-                "status" => "UNAVAILABLE"
-              }
-            }
+            body:
+              %{
+                "error" => %{
+                  "status" => "UNAVAILABLE"
+                }
+              } = body
           }},
          payload
        ) do
-    {:retry, payload}
+    {:retry, body, payload}
   end
 
-  defp parse_response({:ok, %HTTPoison.Response{body: body}}, payload) do
-    {:error, body, payload}
+  defp parse_response({:ok, %HTTPoison.Response{} = error}, payload) do
+    {:error, error, payload}
   end
 
-  defp parse_response({:error, %HTTPoison.Error{reason: reason}}, payload) do
-    {:error, reason, payload}
+  defp parse_response({:error, %HTTPoison.Error{} = error}, payload) do
+    {:error, error, payload}
   end
 
-  defp parse_response({:error, %Error{reason: reason}}, payload) do
-    {:error, reason, payload}
+  defp parse_response({:error, %Error{} = error}, payload) do
+    {:error, error, payload}
   end
 
-  defp handle_result({:ok, name}) do
-    IO.inspect({:ok, name})
+  defp handle_result({:ok, body, payload}) do
+    @queue_monitor.fcm_response({:ok, body, payload})
   end
 
-  defp handle_result({:retry, payload}) do
+  defp handle_result({:retry, body, payload}) do
+    @queue_monitor.fcm_response({:retry, body, payload})
     Messaging.schedule(payload, @retry_offset_seconds)
   end
 
-  defp handle_result({:error, response, payload}) do
-    Logger.info("""
-    #{__MODULE__} FCM Error
-    request: #{inspect(payload)}
-    response: #{inspect(response)}
-    """)
+  defp handle_result({:error, error, payload}) do
+    @queue_monitor.fcm_response({:error, error, payload})
   end
 end

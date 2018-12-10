@@ -33,7 +33,9 @@ Add your Firebase Project ID and service account key path to your `config/config
 ```elixir
 config :ex_firebase,
   project_id: "your-project-id",
-  service_account_key_path: "/path/to/your/key.json"
+  service_account_key_path: "/path/to/your/key.json",
+  queue_interval: 500, # frequency in ms queued messages are sent
+  queue_batch_size: 10 # number of messages sent per queue_interval
 ```
 
 ## Supported Features
@@ -42,7 +44,9 @@ config :ex_firebase,
     - [OAuth2 Access Token](https://hexdocs.pm/ex_firebase/ExFirebase.Auth.html#get_access_token/0) - [more](https://developers.google.com/identity/protocols/OAuth2ServiceAccount)
     - [Verify ID token](https://hexdocs.pm/ex_firebase/ExFirebase.Auth.html#verify_token/1) - [more](https://firebase.google.com/docs/auth/admin/verify-id-tokens)
 - [Messaging](https://hexdocs.pm/ex_firebase/ExFirebase.Messaging.html)
-    - [FCM push notifications](https://hexdocs.pm/ex_firebase/ExFirebase.Messaging.html#send_message/1) - [more](https://firebase.google.com/docs/cloud-messaging/concept-options)
+    - [FCM Push Notifications](https://hexdocs.pm/ex_firebase/ExFirebase.Messaging.html#send/1) - [more](https://firebase.google.com/docs/cloud-messaging/concept-options)
+    - [Rate Limited FCM Requests](https://hexdocs.pm/ex_firebase/ExFirebase.Messaging.html#queue/1)
+    - [Scheduled FCM Requests](https://hexdocs.pm/ex_firebase/ExFirebase.Messaging.html#schedule/2)
 
 ## License
 

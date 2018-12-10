@@ -1,4 +1,9 @@
 defmodule ExFirebase.Messaging.QueueConsumerSupervisor do
+  @moduledoc """
+  The ConsumerSupervisor in the Queue GenStage pipeline.
+  It starts and supervises one consumer process for each FCM Request.
+  """
+
   use ConsumerSupervisor
 
   alias ExFirebase.Messaging.{QueueConsumer, QueueProducerConsumer}
