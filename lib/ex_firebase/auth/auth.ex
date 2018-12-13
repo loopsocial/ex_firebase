@@ -27,7 +27,7 @@ defmodule ExFirebase.Auth do
       {:ok, "1/8xbJqaOZXSUZbHLl5EOtu1pxz3fmmetKx9W8CV4t79M"}
   """
   @spec get_access_token :: {:ok, String.t()} | {:error, Error.t()}
-  defdelegate get_access_token, to: AccessTokenManager, as: :get_token
+  defdelegate get_access_token, to: AccessTokenManager, as: :get_access_token
 
   @doc """
   Makes an HTTP request for an OAuth2 access token using a service account's credentials

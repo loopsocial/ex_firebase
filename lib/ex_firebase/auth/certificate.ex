@@ -13,6 +13,8 @@ defmodule ExFirebase.Auth.Certificate do
           client_email: String.t()
         }
 
+  @file_path Application.get_env(:ex_firebase, :service_account_path)
+
   @doc """
   Creates a new `ExFirebase.Auth.Certificate` from file binary or map
   """
@@ -24,9 +26,9 @@ defmodule ExFirebase.Auth.Certificate do
   Creates a new `ExFirebase.Auth.Certificate` from local file in configuration
   """
   @spec new :: __MODULE__.t() | {:error, Error.t()}
-  def new, do: from_file(file_path())
+  def new, do: from_file(@file_path)
 
-  defp from_file(nil), do: {:error, %Error{reason: :enoent}}
+  defp from_file(nil), do: {:error, %Error{reason: :invalid_certificate}}
 
   defp from_file(path) when is_binary(path) do
     case File.read(path) do
@@ -55,8 +57,4 @@ defmodule ExFirebase.Auth.Certificate do
   end
 
   defp from_map(_), do: {:error, %Error{reason: :invalid_certificate}}
-
-  defp file_path do
-    Application.get_env(:ex_firebase, :service_account_path)
-  end
 end
