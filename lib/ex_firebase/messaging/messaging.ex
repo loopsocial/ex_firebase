@@ -61,4 +61,7 @@ defmodule ExFirebase.Messaging do
 
   @spec get_queue_stats :: QueueMonitor.state()
   defdelegate get_queue_stats, to: QueueMonitor, as: :get_stats
+
+  @spec delete_queue :: :ok
+  defdelegate delete_queue, to: QueueProducer, as: :delete_queue
 end
