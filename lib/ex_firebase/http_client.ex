@@ -3,6 +3,11 @@ defmodule ExFirebase.HTTPClient do
 
   @default_headers [{"Content-Type", "application/json"}]
 
+  @callback get(url :: String.t()) ::
+              {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
+  @callback post(url :: String.t(), body :: any(), headers :: HTTPoison.Request.headers()) ::
+              {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
+
   def process_request_headers(headers) do
     Enum.into(headers, @default_headers)
   end

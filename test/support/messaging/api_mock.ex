@@ -1,5 +1,5 @@
-defmodule ExFirebase.Messaging.HTTPMock do
-  @behaviour ExFirebase.Messaging.HTTP
+defmodule ExFirebase.Messaging.APIMock do
+  @behaviour ExFirebase.Messaging.API
 
   def send(_body, _access_token) do
     {:ok,

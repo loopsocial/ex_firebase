@@ -8,7 +8,7 @@ defmodule ExFirebase.Messaging.QueueProducerConsumer do
 
   alias ExFirebase.Messaging.QueueProducer
 
-  @default_interval 500
+  @default_interval 1000
   @default_batch_size 10
   # How often to ask the QueueProducer for messages
   @interval_ms Application.get_env(:ex_firebase, :queue_interval) || @default_interval

@@ -12,7 +12,6 @@ defmodule ExFirebase do
       ExFirebase.Messaging.QueueProducer,
       ExFirebase.Messaging.QueueProducerConsumer,
       ExFirebase.Messaging.QueueConsumerSupervisor,
-      ExFirebase.Messaging.Scheduler,
       ExFirebase.Messaging.QueueMonitor
     ]
 

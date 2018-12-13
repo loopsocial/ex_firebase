@@ -1,5 +1,5 @@
-defmodule ExFirebase.Auth.HTTPMock do
-  @behaviour ExFirebase.Auth.HTTP
+defmodule ExFirebase.Auth.APIMock do
+  @behaviour ExFirebase.Auth.API
 
   @public_keys File.cwd!()
                |> Path.join("/test/fixtures/public-keys.json")

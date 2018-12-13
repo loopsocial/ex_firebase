@@ -10,14 +10,8 @@ defmodule ExFirebase.Messaging.QueueProducer do
     GenStage.start_link(__MODULE__, args, name: __MODULE__)
   end
 
-  @spec add(map() | list()) :: :ok
+  @spec add(map() | list(map())) :: :ok
   def add(payload) when is_map(payload) do
-    GenServer.cast(__MODULE__, {:add_single, payload})
-  end
-
-  def add([]), do: :ok
-
-  def add([payload]) do
     GenServer.cast(__MODULE__, {:add_single, payload})
   end
 
@@ -37,12 +31,10 @@ defmodule ExFirebase.Messaging.QueueProducer do
     {:producer, :queue.new()}
   end
 
-  # Adds one payload to the end of the queue
   def handle_cast({:add_single, payload}, queue) do
     {:noreply, [], :queue.in(payload, queue)}
   end
 
-  # Adds multiple payloads to the end of the queue
   def handle_cast({:add_multiple, payloads}, queue) do
     {:noreply, [], :queue.join(queue, :queue.from_list(payloads))}
   end
@@ -55,18 +47,10 @@ defmodule ExFirebase.Messaging.QueueProducer do
     {:reply, :queue.len(queue), [], queue}
   end
 
-  # Demand was requested but the queue is empty
   def handle_demand(_demand, {[], []} = queue) do
     {:noreply, [], queue}
   end
 
-  # Demand for 1 was requested, send 1 payload and remove it from queue
-  def handle_demand(1, queue) do
-    {{:value, payload}, queue} = :queue.out(queue)
-    {:noreply, [payload], queue}
-  end
-
-  # Demand for n was requested, send up to n payloads if available
   def handle_demand(demand, queue) when demand > 0 do
     {payloads, queue} = split(demand, queue)
     {:noreply, :queue.to_list(payloads), queue}

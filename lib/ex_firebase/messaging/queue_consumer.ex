@@ -8,7 +8,9 @@ defmodule ExFirebase.Messaging.QueueConsumer do
 
   def start_link(payload) do
     Task.start_link(fn ->
-      send_message(payload)
+      :gproc.send({:p, :l, :fcm_queue_monitor}, {:request, payload})
+      response = Messaging.send(payload)
+      :gproc.send({:p, :l, :fcm_queue_monitor}, {:response, response, payload})
     end)
   end
 
@@ -18,11 +20,5 @@ defmodule ExFirebase.Messaging.QueueConsumer do
       start: {__MODULE__, :start_link, []},
       restart: :temporary
     }
-  end
-
-  defp send_message(payload) do
-    :gproc.send({:p, :l, :fcm_queue_monitor}, {:request, payload})
-    response = Messaging.send(payload)
-    :gproc.send({:p, :l, :fcm_queue_monitor}, {:response, response, payload})
   end
 end

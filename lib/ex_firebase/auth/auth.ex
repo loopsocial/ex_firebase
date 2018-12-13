@@ -7,13 +7,13 @@ defmodule ExFirebase.Auth do
 
   alias ExFirebase.Auth.{
     AccessTokenManager,
+    API,
     Certificate,
-    HTTP,
     JWT,
     TokenVerifier
   }
 
-  @http_module Application.get_env(:ex_firebase, :auth_http_module) || HTTP
+  @api Application.get_env(:ex_firebase, :auth_api) || API
 
   @oauth_token_url "https://www.googleapis.com/oauth2/v4/token"
   def oauth_token_url, do: @oauth_token_url
@@ -53,7 +53,7 @@ defmodule ExFirebase.Auth do
   def get_new_access_token do
     with %Certificate{} = certificate <- Certificate.new(),
          {:ok, jwt} <- JWT.from_certificate(certificate) do
-      @http_module.get_access_token(jwt)
+      @api.get_access_token(jwt)
     end
   end
 
@@ -89,5 +89,5 @@ defmodule ExFirebase.Auth do
   are used to sign Firebase Auth ID tokens
   """
   @spec get_public_keys :: {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
-  defdelegate get_public_keys, to: @http_module, as: :get_public_keys
+  defdelegate get_public_keys, to: @api, as: :get_public_keys
 end

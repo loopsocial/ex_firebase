@@ -34,7 +34,7 @@ Add your Firebase Project ID and service account key path to your `config/config
 config :ex_firebase,
   project_id: "your-project-id",
   service_account_key_path: "/path/to/your/key.json",
-  queue_interval: 500, # frequency in ms queued messages are sent
+  queue_interval: 1000, # frequency in ms queued messages are sent
   queue_batch_size: 10 # number of messages sent per queue_interval
 ```
 
@@ -46,7 +46,6 @@ config :ex_firebase,
 - [Messaging](https://hexdocs.pm/ex_firebase/ExFirebase.Messaging.html)
     - [FCM Push Notifications](https://hexdocs.pm/ex_firebase/ExFirebase.Messaging.html#send/1) - [more](https://firebase.google.com/docs/cloud-messaging/concept-options)
     - [Rate Limited FCM Requests](https://hexdocs.pm/ex_firebase/ExFirebase.Messaging.html#queue/1)
-    - [Scheduled FCM Requests](https://hexdocs.pm/ex_firebase/ExFirebase.Messaging.html#schedule/2)
 
 ## License
 
