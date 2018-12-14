@@ -14,6 +14,9 @@ defmodule ExFirebase.Auth.Certificate do
         }
 
   @file_path Application.get_env(:ex_firebase, :service_account_path)
+  @project_id Application.get_env(:ex_firebase, :project_id)
+  @private_key Application.get_env(:ex_firebase, :private_key)
+  @client_email Application.get_env(:ex_firebase, :client_email)
 
   @doc """
   Creates a new `ExFirebase.Auth.Certificate` from file binary or map
@@ -23,12 +26,25 @@ defmodule ExFirebase.Auth.Certificate do
   def new(attrs) when is_map(attrs), do: from_map(attrs)
 
   @doc """
-  Creates a new `ExFirebase.Auth.Certificate` from local file in configuration
+  Creates a new `ExFirebase.Auth.Certificate` from app config
   """
   @spec new :: __MODULE__.t() | {:error, Error.t()}
-  def new, do: from_file(@file_path)
+  def new do
+    cond do
+      !!is_binary(@file_path) ->
+        from_file(@file_path)
 
-  defp from_file(nil), do: {:error, %Error{reason: :invalid_certificate}}
+      Enum.all?([@project_id, @private_key, @client_email], &is_binary(&1)) ->
+        from_map(%{
+          "project_id" => @project_id,
+          "private_key" => @private_key,
+          "client_email" => @client_email
+        })
+
+      true ->
+        {:error, %Error{reason: :invalid_certificate}}
+    end
+  end
 
   defp from_file(path) when is_binary(path) do
     case File.read(path) do

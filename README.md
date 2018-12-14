@@ -33,9 +33,17 @@ Add your Firebase Project ID and service account key path to your `config/config
 ```elixir
 config :ex_firebase,
   project_id: "your-project-id",
-  service_account_key_path: "/path/to/your/key.json",
+  service_account_path: "/path/to/your/key.json",
   queue_interval: 1000, # frequency in ms queued messages are sent
   queue_batch_size: 10 # number of messages sent per queue_interval
+```
+
+Instead of specifying a file with `service_account_path`, you can set the following variables:
+
+```elixir
+config :ex_firebase,
+  private_key: System.get_env("FIREBASE_PRIVATE_KEY"),
+  client_email: System.get_env("FIREBASE_CLIENT_EMAIL")
 ```
 
 ## Supported Features
