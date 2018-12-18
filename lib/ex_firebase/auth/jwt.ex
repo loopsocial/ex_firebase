@@ -3,10 +3,11 @@ defmodule ExFirebase.Auth.JWT do
   Converts an `ExFirebase.Auth.Certificate` into a signed JWT
   """
 
-  alias ExFirebase.{Auth, Error}
   alias ExFirebase.Auth.Certificate
+  alias ExFirebase.Error
 
   @algorithm "RS256"
+  @oauth_token_url "https://www.googleapis.com/oauth2/v4/token"
   @one_hour_in_seconds 60 * 60
   @scopes [
     "https://www.googleapis.com/auth/cloud-platform",
@@ -28,7 +29,7 @@ defmodule ExFirebase.Auth.JWT do
        |> JOSE.JWT.sign(%{"alg" => @algorithm, "typ" => "JWT"}, %{
          "iat" => System.system_time(:seconds),
          "exp" => System.system_time(:seconds) + @one_hour_in_seconds,
-         "aud" => Auth.oauth_token_url(),
+         "aud" => @oauth_token_url,
          "iss" => client_email,
          "scope" => Enum.join(@scopes, " ")
        })

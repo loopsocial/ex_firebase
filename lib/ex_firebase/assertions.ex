@@ -43,12 +43,12 @@ defmodule ExFirebase.Assertions do
           value == get_in(p, keys)
         end)
 
-      case Enum.all?(comparisons, &(&1 == true)) do
+      case Enum.all?(comparisons, & &1) do
         true -> [true | acc]
         false -> acc
       end
     end)
-    |> Enum.any?(&(&1 == true))
+    |> Enum.any?(& &1)
   end
 
   defp key_paths_with_values(map, keys \\ [], results \\ []) do

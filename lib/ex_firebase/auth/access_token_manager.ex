@@ -17,16 +17,16 @@ defmodule ExFirebase.Auth.AccessTokenManager do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
 
-  @spec get_access_token :: {:ok, String.t()} | {:error, Error.t()}
-  def get_access_token do
-    case GenServer.call(__MODULE__, :get_access_token) do
+  @spec get_token :: {:ok, String.t()} | {:error, Error.t()}
+  def get_token do
+    case GenServer.call(__MODULE__, :get_token) do
       nil -> {:error, %Error{reason: :no_access_token}}
       access_token -> {:ok, access_token}
     end
   end
 
-  def update_access_token do
-    GenServer.cast(__MODULE__, :update_access_token)
+  def update_token do
+    GenServer.cast(__MODULE__, :update_token)
   end
 
   @impl GenServer
@@ -36,18 +36,18 @@ defmodule ExFirebase.Auth.AccessTokenManager do
 
   @impl GenServer
   def handle_continue(:init, state) do
-    update_access_token()
+    update_token()
     {:noreply, state}
   end
 
   @impl GenServer
-  def handle_call(:get_access_token, _from, state) do
+  def handle_call(:get_token, _from, state) do
     {:reply, state[:access_token], state}
   end
 
   @impl GenServer
-  def handle_cast(:update_access_token, state) do
-    case Auth.get_new_access_token() do
+  def handle_cast(:update_token, state) do
+    case Auth.get_access_token() do
       {:ok, %{body: %{"access_token" => access_token, "expires_in" => expires_in}}} ->
         set_reload_timer(expires_in - @one_minute_in_seconds)
         {:noreply, %{access_token: access_token}}
@@ -76,12 +76,12 @@ defmodule ExFirebase.Auth.AccessTokenManager do
   end
 
   @impl GenServer
-  def handle_info(:reload_access_token, state) do
-    update_access_token()
+  def handle_info(:reload_token, state) do
+    update_token()
     {:noreply, state}
   end
 
   defp set_reload_timer(seconds) do
-    Process.send_after(__MODULE__, :reload_access_token, :timer.seconds(seconds))
+    Process.send_after(__MODULE__, :reload_token, :timer.seconds(seconds))
   end
 end

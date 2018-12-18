@@ -10,31 +10,29 @@ defmodule ExFirebase.Auth do
     API,
     Certificate,
     JWT,
+    PublicKeyManager,
     TokenVerifier
   }
 
   @api Application.get_env(:ex_firebase, :auth_api) || API
-
-  @oauth_token_url "https://www.googleapis.com/oauth2/v4/token"
-  def oauth_token_url, do: @oauth_token_url
 
   @doc """
   Returns a cached access token
 
   ## Examples
 
-      iex> ExFirebase.Auth.get_access_token()
+      iex> ExFirebase.Auth.access_token()
       {:ok, "1/8xbJqaOZXSUZbHLl5EOtu1pxz3fmmetKx9W8CV4t79M"}
   """
-  @spec get_access_token :: {:ok, String.t()} | {:error, Error.t()}
-  defdelegate get_access_token, to: AccessTokenManager, as: :get_access_token
+  @spec access_token :: {:ok, String.t()} | {:error, Error.t()}
+  defdelegate access_token, to: AccessTokenManager, as: :get_token
 
   @doc """
   Makes an HTTP request for an OAuth2 access token using a service account's credentials
 
   ## Examples
 
-      iex(14)> ExFirebase.Auth.get_new_access_token()
+      iex(14)> ExFirebase.Auth.get_access_token()
       {:ok,
        %HTTPoison.Response{
          body: %{
@@ -46,11 +44,11 @@ defmodule ExFirebase.Auth do
          status_code: 200
        }}
   """
-  @spec get_new_access_token ::
+  @spec get_access_token ::
           {:ok, HTTPoison.Response.t()}
           | {:error, HTTPoison.Error.t()}
           | {:error, Error.t()}
-  def get_new_access_token do
+  def get_access_token do
     with %Certificate{} = certificate <- Certificate.new(),
          {:ok, jwt} <- JWT.from_certificate(certificate) do
       @api.get_access_token(jwt)
@@ -85,9 +83,21 @@ defmodule ExFirebase.Auth do
   defdelegate verify_token(token), to: TokenVerifier, as: :verify
 
   @doc """
+  Returns cached public keys
+  """
+  @spec public_keys :: %{String.t() => String.t()}
+  defdelegate public_keys, to: PublicKeyManager, as: :get_keys
+
+  @doc """
   Makes an HTTP request to get Google's public keys, whose private keys
   are used to sign Firebase Auth ID tokens
   """
   @spec get_public_keys :: {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
   defdelegate get_public_keys, to: @api, as: :get_public_keys
+
+  @doc """
+  Returns a cached public key by id
+  """
+  @spec get_public_key(String.t()) :: {:ok, String.t()} | {:error, Error.t()}
+  defdelegate get_public_key(key_id), to: PublicKeyManager, as: :get_key
 end

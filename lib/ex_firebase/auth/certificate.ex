@@ -3,7 +3,7 @@ defmodule ExFirebase.Auth.Certificate do
   Converts Firebase service account credentials into an `ExFirebase.Auth.Certificate`
   """
 
-  alias ExFirebase.Error
+  alias ExFirebase.{Config, Error}
 
   defstruct [:project_id, :private_key, :client_email]
 
@@ -12,11 +12,6 @@ defmodule ExFirebase.Auth.Certificate do
           private_key: String.t(),
           client_email: String.t()
         }
-
-  @file_path Application.get_env(:ex_firebase, :service_account_path)
-  @project_id Application.get_env(:ex_firebase, :project_id)
-  @private_key Application.get_env(:ex_firebase, :private_key)
-  @client_email Application.get_env(:ex_firebase, :client_email)
 
   @doc """
   Creates a new `ExFirebase.Auth.Certificate` from file binary or map
@@ -31,14 +26,17 @@ defmodule ExFirebase.Auth.Certificate do
   @spec new :: __MODULE__.t() | {:error, Error.t()}
   def new do
     cond do
-      !!is_binary(@file_path) ->
-        from_file(@file_path)
+      !!is_binary(Config.service_account_path()) ->
+        from_file(Config.service_account_path())
 
-      Enum.all?([@project_id, @private_key, @client_email], &is_binary(&1)) ->
+      Enum.all?(
+        [Config.project_id(), Config.private_key(), Config.client_email()],
+        &is_binary(&1)
+      ) ->
         from_map(%{
-          "project_id" => @project_id,
-          "private_key" => @private_key,
-          "client_email" => @client_email
+          "project_id" => Config.project_id(),
+          "private_key" => Config.private_key(),
+          "client_email" => Config.client_email()
         })
 
       true ->

@@ -43,7 +43,7 @@ defmodule ExFirebase.Messaging do
           | {:error, HTTPoison.Error.t()}
           | {:error, Error.t()}
   def send(payload) do
-    with {:ok, access_token} <- Auth.get_access_token() do
+    with {:ok, access_token} <- Auth.access_token() do
       @api.send(payload, access_token)
     end
   end

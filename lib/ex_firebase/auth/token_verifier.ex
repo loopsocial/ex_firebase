@@ -6,10 +6,9 @@ defmodule ExFirebase.Auth.TokenVerifier do
   """
 
   alias ExFirebase.Auth.PublicKeyManager
-  alias ExFirebase.Error
+  alias ExFirebase.{Config, Error}
 
   @allowed_algos ["RS256"]
-  @project_id Application.get_env(:ex_firebase, :project_id)
 
   @spec verify(String.t()) :: {:ok, JOSE.JWT.t()} | {:error, Error.t()}
   def verify(token) do
@@ -35,7 +34,7 @@ defmodule ExFirebase.Auth.TokenVerifier do
 
   defp verify_audience(aud) do
     cond do
-      aud == @project_id -> {:ok, aud}
+      aud == Config.project_id() -> {:ok, aud}
       true -> {:error, %Error{reason: :invalid_aud}}
     end
   end
@@ -63,7 +62,7 @@ defmodule ExFirebase.Auth.TokenVerifier do
 
   defp verify_issuer(iss) do
     cond do
-      iss == "https://securetoken.google.com/#{@project_id}" -> {:ok, iss}
+      iss == "https://securetoken.google.com/#{Config.project_id()}" -> {:ok, iss}
       true -> {:error, %Error{reason: :invalid_iss}}
     end
   end
