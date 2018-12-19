@@ -5,6 +5,7 @@ defmodule ExFirebase.Assertions do
 
   alias ExFirebase.Messaging
 
+  @spec assert_in_queue(map()) :: :ok | ExUnit.AssertionError.t()
   def assert_in_queue(payload) do
     case in_queue?(payload) do
       true ->
@@ -19,6 +20,7 @@ defmodule ExFirebase.Assertions do
     end
   end
 
+  @spec refute_in_queue(map()) :: :ok | ExUnit.AssertionError.t()
   def refute_in_queue(payload) do
     case in_queue?(payload) do
       false ->
@@ -33,6 +35,7 @@ defmodule ExFirebase.Assertions do
     end
   end
 
+  @spec in_queue?(map()) :: boolean()
   def in_queue?(payload) do
     Messaging.get_queue()
     |> Enum.reduce([], fn p, acc ->

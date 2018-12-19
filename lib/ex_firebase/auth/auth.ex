@@ -32,7 +32,7 @@ defmodule ExFirebase.Auth do
 
   ## Examples
 
-      iex(14)> ExFirebase.Auth.get_access_token()
+      iex> ExFirebase.Auth.get_access_token()
       {:ok,
        %HTTPoison.Response{
          body: %{

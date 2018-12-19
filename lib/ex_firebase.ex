@@ -5,6 +5,7 @@ defmodule ExFirebase do
 
   use Application
 
+  @doc false
   def start(_type, _args) do
     children = [
       ExFirebase.Auth.AccessTokenManager,

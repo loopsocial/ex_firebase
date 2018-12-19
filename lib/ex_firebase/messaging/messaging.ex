@@ -48,6 +48,9 @@ defmodule ExFirebase.Messaging do
     end
   end
 
+  @doc """
+  Enqueues a message payload for immediate delivery in a GenStage pipeline
+  """
   @spec queue(map() | list(map())) :: :ok
   def queue(payload) do
     QueueProducer.add(payload)
