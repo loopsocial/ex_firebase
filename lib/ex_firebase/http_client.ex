@@ -1,7 +1,7 @@
 defmodule ExFirebase.HTTPClient do
   use HTTPoison.Base
 
-  @default_headers [{"Content-Type", "application/json"}]
+  @default_headers ["Content-Type": "application/json"]
 
   @callback get(url :: String.t()) ::
               {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
@@ -9,7 +9,7 @@ defmodule ExFirebase.HTTPClient do
               {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
 
   def process_request_headers(headers) do
-    Enum.into(headers, @default_headers)
+    Keyword.merge(@default_headers, headers)
   end
 
   def process_request_body(body) when is_map(body), do: Poison.encode!(body)

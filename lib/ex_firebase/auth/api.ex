@@ -23,7 +23,7 @@ defmodule ExFirebase.Auth.API do
          {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
          {"assertion", jwt}
        ]},
-      [{"content-type", "application/x-www-form-urlencoded"}]
+      "Content-Type": "application/x-www-form-urlencoded"
     )
   end
 end
