@@ -27,8 +27,8 @@ defmodule ExFirebase.Auth.JWT do
       {:ok,
        jwk
        |> JOSE.JWT.sign(%{"alg" => @algorithm, "typ" => "JWT"}, %{
-         "iat" => System.system_time(:seconds),
-         "exp" => System.system_time(:seconds) + @one_hour_in_seconds,
+         "iat" => System.system_time(:second),
+         "exp" => System.system_time(:second) + @one_hour_in_seconds,
          "aud" => @oauth_token_url,
          "iss" => client_email,
          "scope" => Enum.join(@scopes, " ")
